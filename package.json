@@ -10,7 +10,8 @@
       "migration:generate": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:generate ./src/migrations/default",
 		"migration:run": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:run",
       "migration:create": "typeorm migration:create  ./src/migrations/insert_table_status",
-      "vercel-build": "typeorm -d ./src/data-source.ts migration:run"
+      "build": "tsc", 
+      "vercel-build": "npm run build && typeorm -d dist/src/data-source.js migration:run"
 
    },
    "author": "Desenvolvimento ScrumHub",
