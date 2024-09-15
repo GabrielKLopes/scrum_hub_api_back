@@ -15,7 +15,7 @@ routes.use("/session", loginRoutes)
 
 //User
 routes.post("/session/user/register", UserController.createUser);
-routes.get("/session/user", authorization, UserController.getAllUsers);
+routes.get("/session/user", UserController.getAllUsers);
 routes.get("/session/user/:user_id", authorization, UserController.getUserById);
 routes.put("/session/user/:user_id", authorization, UserController.updatedUser);
 routes.delete("/session/user/:user_id", authorization, UserController.deleteUser);
