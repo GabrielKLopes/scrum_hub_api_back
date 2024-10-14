@@ -5,8 +5,6 @@ import { UserService } from "../services/User.service";
 
 
 export class UserController {
-    private secretJWT = process.env.JWT_SECRET_KEY || "";
-
     static async createUser(req: Request, res: Response): Promise<void> {
         try {
             const userService = new UserService();
@@ -26,9 +24,8 @@ export class UserController {
                 squad_id
             );
             res.status(201).json({ message: user })
-        } catch (error) {
-            console.log(error)
-            res.status(500).json({ message: "Internal server error" })
+        } catch (error: any) {
+            res.status(401).json({ message: error.message || "Internal Server failed" });
         }
     }
 
