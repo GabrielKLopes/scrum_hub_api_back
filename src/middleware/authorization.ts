@@ -39,9 +39,10 @@ export async function authorization(req: CustomRequest, res: Response, next: Nex
            
             return res.status(403).send({ message: "Permission denied for delete" });
         }
-        
+        if(req.url.startsWith("/session/user/create") && req.method == "POST" && user.permission.permission_id !== 1){
+            return res.status(403).send({ message: "Permission denied for created" });
+        }
         if(req.url.startsWith("/session/user/") && req.method == "PUT" && user.permission.permission_id !== 1){
-          
             return res.status(403).send({ message: "Permission denied for update" });
         }
         if(req.url.startsWith("/session/squad/createSquad") && req.method === "POST" && user.permissionUser.permissionUser_id !==1){
@@ -53,6 +54,8 @@ export async function authorization(req: CustomRequest, res: Response, next: Nex
         if(req.url.startsWith("/session/squad/") && req.method === "DELETE" && user.permissionUser.permissionUser_id !==1){
             return res.status(403).send({message: "Permission denied for delete squad"});
         }
+
+     
         
         req.user_id = user.user_id;
         next(); 

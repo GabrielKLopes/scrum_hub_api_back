@@ -9,11 +9,13 @@ export class UserController {
         try {
             const userService = new UserService();
             const { name, password, email, permission_id, permissionUser_id, squad_id, title_id } = req.body;
-
+    
+            // Verifica se os campos obrigatórios estão presentes
             if (!name || !password || !email) {
-                res.status(400).json({ message: "Missing required fields" })
-                return
-            };
+                res.status(400).json({ message: "Missing required fields" });
+                return;
+            }
+    
             const user = await userService.createUser(
                 name,
                 email,
@@ -23,11 +25,15 @@ export class UserController {
                 permission_id,
                 squad_id
             );
-            res.status(201).json({ message: user })
+    
+            const { password: _, ...userWithoutPassword } = user;
+    
+            res.status(201).json({ message: "User created successfully", user: userWithoutPassword });
         } catch (error: any) {
             res.status(401).json({ message: error.message || "Internal Server failed" });
         }
     }
+    
 
 
     static async getAllUsers(req: Request, res: Response): Promise<void> {

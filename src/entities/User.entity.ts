@@ -1,5 +1,4 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Title } from "./Title.entity";
 import { Permission } from "./Permission.entity";
 import { Squad } from "./Squad.entity";
 import { PermissionUser } from "./PermissionUser.entity";
@@ -9,13 +8,13 @@ import { Task } from "./Task.entity";
 import { SubTask } from "./SubTask.entity";
 import { Comment } from "./Comment.entity";
 import { Project } from "./Project.entity";
+import { UserCreation } from "./UserCreation";
 
 
 
 @Entity('users')
 
 export class User{
-
     @PrimaryGeneratedColumn()
     user_id:number;
 
@@ -27,10 +26,6 @@ export class User{
 
     @Column()
     password:string;
-
-    @ManyToOne(() => Title, title => title.title_id)
-    @JoinColumn({name: 'title_id'})
-    title: Title;
 
     @ManyToOne(() => PermissionUser, permissionUser => permissionUser.permissionUser_id)
     @JoinColumn({name: 'permissionUser_id'})
@@ -71,6 +66,10 @@ export class User{
     @OneToMany(() => Comment, comment => comment.create_by)
     comment: Comment[];
 
+    @OneToMany(() => UserCreation, userCreation => userCreation.creator)
+    createdUsers: UserCreation[];
+
+  
  
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

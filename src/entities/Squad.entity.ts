@@ -4,6 +4,7 @@ import { Project } from "./Project.entity";
 import { Sprint } from "./Sprint.entity";
 import { Task } from "./Task.entity";
 import { SubTask } from "./SubTask.entity";
+import { UserCreation } from "./UserCreation";
 
 
 
@@ -36,10 +37,12 @@ export class Squad{
     @OneToMany(()=> User, user => user.squad)
     user: User[];
 
+    @OneToMany(()=> UserCreation, UserCreation => UserCreation.squad)
+    UserCreation: UserCreation[]
+
     @OneToMany(() => SubTask, substask => substask.squad)
     substask: SubTask[];
 
-    
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

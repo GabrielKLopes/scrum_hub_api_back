@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User.entity";
+import { UserCreation } from "./UserCreation";
 
 @Entity('permissionusers')
 export class PermissionUser {
@@ -17,6 +18,9 @@ export class PermissionUser {
 
     @OneToMany(() => User, user => user.permissionUser)
     users: User[];
+
+    @OneToMany(() => UserCreation, userCreation => userCreation.permissionUser)
+    userCreation: UserCreation[];
 
     @Column({ name: 'updatevalue', default: false })
     updateValue: boolean;

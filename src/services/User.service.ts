@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import { AppDataSource } from "../data-source";
 import { PermissionUser } from "../entities/PermissionUser.entity";
 import { Permission } from "../entities/Permission.entity";
-import { Title } from "../entities/Title.entity";
 import { Squad } from "../entities/Squad.entity";
 
 
@@ -13,7 +12,6 @@ export class UserService{
     private userRepository = AppDataSource.getRepository(User);
     private permissionUserRepository = AppDataSource.getRepository(PermissionUser);
     private permissionRepository = AppDataSource.getRepository(Permission);
-    private titleRepository = AppDataSource.getRepository(Title);
     private squadRepository = AppDataSource.getRepository(Squad);
 
     async createUser(name: string, email: string, password: string, title_id?:number , permissionUser_id?: number,
@@ -39,13 +37,6 @@ export class UserService{
                 user.email = email;
                 user.password = hashPassword;
                
-
-                if (title_id) {
-                    const title = await this.titleRepository.findOne({where:{title_id}});
-                    if (title) {
-                        user.title = title;
-                    }
-                }
                 if (permissionUser_id) {
                     const permissionUser = await this.permissionUserRepository.findOne({where:{permissionUser_id}});
                     if (permissionUser) {
@@ -93,64 +84,55 @@ export class UserService{
         }
     }
 
-    async updatedUser(user_id: number, name: string, email: string, password: string, title_id?: number, permission_id?:number, permissionUser_id?:number, squad_id?: number): Promise<User>{
-        const userRepository = AppDataSource.getRepository(User);
-
-        const existingEmail = await this.userRepository.findOne({where:{email}, relations:['permission', 'permissionUser']});
-        if(existingEmail && existingEmail.user_id !== user_id){
-            throw new Error('E-mail already registered');
-        }
-
-        const updateUser = await this.userRepository.findOne({where: {user_id}, relations:['permission', 'permissionUser']});
-
-        if(!updateUser){
+    async updatedUser(
+        user_id: number, 
+        name?: string, 
+        email?: string, 
+        password?: string, 
+        title_id?: number, 
+        permission_id?: number, 
+        permissionUser_id?: number, 
+        squad_id?: number
+    ): Promise<User> {
+        const updateUser = await this.userRepository.findOne({
+            where: { user_id }, 
+            relations: ['permission', 'permissionUser']
+        });
+    
+        if (!updateUser) {
             throw new Error('User not found');
         }
-
-        updateUser.name = name !== undefined ? name: updateUser.name;
-        updateUser.email = email !== undefined ? email : updateUser.email;
-
-        if (password !== undefined && password !== '') {
+    
+        // Atualize apenas os campos que foram fornecidos
+        updateUser.name = name ?? updateUser.name;
+        updateUser.email = email ?? updateUser.email;
+    
+        if (password) {
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
             if (!passwordRegex.test(password)) {
-                throw new Error('The password must be between 8 and 16 characters long, containing at least one saved letter, one lowercase letter, one number and one special character.');
+                throw new Error('The password must be between 8 and 16 characters long, containing at least one uppercase letter, one lowercase letter, one number, and one special character.');
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             updateUser.password = hashedPassword;
         }
-
-        if(permissionUser_id !== undefined){
-            const permissionUser = await this.permissionUserRepository.findOne({where:{permissionUser_id}});
-            if(!permissionUser){
-                throw new Error('PermissionUser not found');
-            }
-            updateUser.permissionUser = permissionUser;
+    
+        if (permissionUser_id !== undefined) {
+            const permissionUser = await this.permissionUserRepository.findOne({ where: { permissionUser_id } });
+            if (permissionUser) updateUser.permissionUser = permissionUser;
         }
-        if(permission_id !== undefined){
-        const permission = await this.permissionRepository.findOne({where:{permission_id}});
-            if(!permission){
-                throw new Error('Permission not found');
-            }
-            updateUser.permission = permission;
+    
+        if (permission_id !== undefined) {
+            const permission = await this.permissionRepository.findOne({ where: { permission_id } });
+            if (permission) updateUser.permission = permission;
         }
-
-        if(squad_id !== undefined){
-            const squad = await this.squadRepository.findOne({where:{squad_id}});
-            if(!squad){
-                throw new Error('Squad not found');
-            }
-            updateUser.squad = squad;
+    
+        if (squad_id !== undefined) {
+            const squad = await this.squadRepository.findOne({ where: { squad_id } });
+            if (squad) updateUser.squad = squad;
         }
-
-        if(title_id !== undefined){
-            const title = await this.titleRepository.findOne({where: {title_id}});
-            if(!title){
-                throw new Error('Title not found');
-            }
-            updateUser.title = title;
-        }
-
-        await userRepository.save(updateUser);
+    
+     
+        await this.userRepository.save(updateUser);
         return updateUser;
     }
 

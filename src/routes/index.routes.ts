@@ -6,12 +6,17 @@ import { authorization } from "../middleware/authorization";
 import { SquadController } from "../controller/Squad.controller";
 import { ProjectController } from "../controller/Project.controller";
 import { BacklogController } from "../controller/backlog.controller";
+import { UserCreationController } from "../controller/userCreation.controller";
 
 export const routes = Router();
 
 //Login
 routes.use("/session", loginRoutes)
 
+
+// User Creation
+routes.post("/session/user/create", authorization, UserCreationController.createUser); 
+routes.get('/session/user/create', UserCreationController.getUsersCreatedBy);
 
 //User
 routes.post("/session/user/register", UserController.createUser);
