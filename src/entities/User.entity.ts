@@ -29,15 +29,15 @@ export class User{
 
     @ManyToOne(() => PermissionUser, permissionUser => permissionUser.permissionUser_id)
     @JoinColumn({name: 'permissionUser_id'})
-    permissionUser: PermissionUser;
+    permissionUser: PermissionUser | null;
 
     @ManyToOne(() => Permission, permission => permission.permission_id)
     @JoinColumn({name: 'permission_id'})
-    permission: Permission;
+    permission: Permission | null;
 
     @ManyToOne(() => Squad, squad => squad.squad_id)
     @JoinColumn({name: 'squad_id'})
-    squad: Squad;
+    squad: Squad | null;
 
     @OneToMany(() => Squad, squad => squad.createdBy)
     squads: Squad[];

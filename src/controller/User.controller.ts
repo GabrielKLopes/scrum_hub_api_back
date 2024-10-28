@@ -10,7 +10,6 @@ export class UserController {
             const userService = new UserService();
             const { name, password, email, permission_id, permissionUser_id, squad_id, title_id } = req.body;
     
-            // Verifica se os campos obrigatórios estão presentes
             if (!name || !password || !email) {
                 res.status(400).json({ message: "Missing required fields" });
                 return;

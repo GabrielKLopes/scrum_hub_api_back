@@ -27,49 +27,59 @@ export class UserCreationService {
         }: UserCreateDTO
     ): Promise<UserResponseDTO> {
         const creator = await this.userRepository.findOne({ where: { user_id: creatorId } });
-
+    
         const existingEmail = await this.userCreatedRepository.findOne({ where: { email } });
         if (existingEmail) {
             throw new Error('E-mail já cadastrado.');
         }
-
+    
         const hashPassword = await bcrypt.hash(password, 10);
-
+    
         const permissionUser = permissionUser_id 
             ? await this.permissionUserRepository.findOne({ where: { permissionUser_id } }) 
             : null;
-
+    
         const permission = permission_id 
             ? await this.permissionRepository.findOne({ where: { permission_id } }) 
             : null;
-
+    
         const squad = squad_id 
             ? await this.squadRepository.findOne({ where: { squad_id } }) 
             : null;
-
+    
         if (permissionUser_id && !permissionUser) {
             throw new Error('Permissão de usuário não encontrada.');
         }
-
+    
         if (permission_id && !permission) {
             throw new Error('Permissão não encontrada.');
         }
-
+    
         if (squad_id && !squad) {
             throw new Error('Squad não encontrado.');
         }
-
+    
+        const newUser = new User();
+        newUser.name = name;
+        newUser.email = email;
+        newUser.password = hashPassword; 
+        newUser.permissionUser = permissionUser; 
+        newUser.permission = permission;
+        newUser.squad = squad; 
+    
+        await this.userRepository.save(newUser);
+    
         const newUserCreated = new UserCreation();
-        newUserCreated.name = name;
-        newUserCreated.email = email;
-        newUserCreated.password = hashPassword;
+        newUserCreated.name = newUser.name;
+        newUserCreated.email = newUser.email;
+        newUserCreated.password = newUser.password; 
         newUserCreated.creator = creator; 
         newUserCreated.permissionUser = permissionUser; 
         newUserCreated.permission = permission;
         newUserCreated.squad = squad; 
-
+    
         await this.userCreatedRepository.save(newUserCreated);
-
+    
         return {
             id: newUserCreated.id,
             name: newUserCreated.name,
@@ -115,15 +125,67 @@ export class UserCreationService {
             created_at: newUserCreated.created_at.toISOString(), 
         };
     }
+    
 
-    async getUsersCreatedBy(creatorId: number): Promise<UserResponseDTO[]> {
-        const users = await this.userCreatedRepository.find({
-            where: { creator: { user_id: creatorId } }, 
-            relations: ['creator', 'permissionUser', 'permission', 'squad'], 
+    async getAllUsers(): Promise<UserResponseDTO[]> {
+    
+        const allUsers = await this.userCreatedRepository.find({
+            relations: ['creator', 'permissionUser', 'permission', 'squad'],
         });
     
-        return users.map(user => ({
-            id: user.id, 
+    
+        return allUsers.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            created_at: user.created_at.toISOString(),
+            creator: {
+                user_id: user.creator?.user_id || 0,
+                name: user.creator?.name || '',
+                email: user.creator?.email || '',
+            },
+            permissionUser: {
+                permissionUser_id: user.permissionUser?.permissionUser_id || 0,
+                name: user.permissionUser?.name || '',
+                createValue: user.permissionUser?.createValue || false,
+                deleteValue: user.permissionUser?.deleteValue || false,
+                updateValue: user.permissionUser?.updateValue || false,
+            },
+            permission: {
+                permission_id: user.permission?.permission_id || 0,
+                name: user.permission?.name || '',
+                type: user.permission?.type || false,
+            },
+            squad: {
+                name: user.squad?.name || '',
+                squad_id: user.squad?.squad_id || 0,
+            }
+        }));
+    }
+    
+
+    async deleteUser(userId: number): Promise<void> {
+        const userToDelete = await this.userCreatedRepository.findOne({ where: { id: userId } });
+        
+        if (!userToDelete) {
+            throw new Error('Usuário não encontrado.');
+        }
+    
+        await this.userCreatedRepository.remove(userToDelete);
+    }
+
+    async getUserById(userId: number): Promise<UserResponseDTO> {
+        const user = await this.userCreatedRepository.findOne({
+            where: { id: userId },
+            relations: ['creator', 'permissionUser', 'permission', 'squad'],
+        });
+    
+        if (!user) {
+            throw new Error('Usuário não encontrado.');
+        }
+    
+        return {
+            id: user.id,
             name: user.name,
             email: user.email,
             creator: user.creator ? {
@@ -143,7 +205,7 @@ export class UserCreationService {
                 updateValue: user.permissionUser.updateValue,
             } : {
                 permissionUser_id: -1,
-                name: 'Permissão Desconhecida',
+                name: 'Sem Permissão',
                 createValue: false,
                 deleteValue: false,
                 updateValue: false,
@@ -154,17 +216,18 @@ export class UserCreationService {
                 type: user.permission.type,
             } : {
                 permission_id: -1,
-                name: 'Permissão Desconhecida',
+                name: 'Sem Permissão',
                 type: false,
             },
             squad: user.squad ? {
                 name: user.squad.name,
                 squad_id: user.squad.squad_id,
             } : {
-                name: 'Squad Desconhecido',
+                name: 'Sem Squad',
                 squad_id: -1,
             },
             created_at: user.created_at.toISOString(),
-        }));
+        };
     }
+    
 }

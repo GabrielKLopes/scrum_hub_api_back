@@ -35,30 +35,31 @@ export async function authorization(req: CustomRequest, res: Response, next: Nex
         if (!user) {
             return res.status(403).send({ message: 'Permission denied' });
         }
-        if(req.url.startsWith("/session/user/") && req.method == "DELETE" && user.permission.permission_id !== 1){
+        if(req.url.startsWith("/session/user/") && req.method == "DELETE" && user.permission?.permission_id !== 1){
            
             return res.status(403).send({ message: "Permission denied for delete" });
         }
-        if(req.url.startsWith("/session/user/create") && req.method == "POST" && user.permission.permission_id !== 1){
+        if(req.url.startsWith("/session/user/create") && req.method == "POST" && user.permission?.permission_id !== 1){
             return res.status(403).send({ message: "Permission denied for created" });
         }
-        if(req.url.startsWith("/session/user/") && req.method == "PUT" && user.permission.permission_id !== 1){
+        if(req.url.startsWith("/session/user/") && req.method == "PUT" && user.permission?.permission_id !== 1){
             return res.status(403).send({ message: "Permission denied for update" });
         }
-        if(req.url.startsWith("/session/squad/createSquad") && req.method === "POST" && user.permissionUser.permissionUser_id !==1){
+        if(req.url.startsWith("/session/squad/createSquad") && req.method === "POST" && user.permissionUser?.permissionUser_id !==1){
             return res.status(403).send({message: "Permission denied for create squad"});
         }
-        if(req.url.startsWith("/session/squad/") && req.method === "PUT" && user.permissionUser.permissionUser_id !==1){
+        if(req.url.startsWith("/session/squad/") && req.method === "PUT" && user.permissionUser?.permissionUser_id !==1){
             return res.status(403).send({message: "Permission denied for update squad"});
         }
-        if(req.url.startsWith("/session/squad/") && req.method === "DELETE" && user.permissionUser.permissionUser_id !==1){
+        if(req.url.startsWith("/session/squad/") && req.method === "DELETE" && user.permissionUser?.permissionUser_id !==1){
             return res.status(403).send({message: "Permission denied for delete squad"});
         }
 
      
         
-        req.user_id = user.user_id;
-        next(); 
+        req.user_id = user.user_id; 
+        console.log("User ID do middleware:", req.user_id); 
+        next();
     } catch (error) {
         console.log(error);
         return res.status(401).send({ message: "Acess denied" });

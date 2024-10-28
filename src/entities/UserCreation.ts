@@ -1,8 +1,8 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "./User.entity"; // Importe a entidade User
-import { PermissionUser } from "./PermissionUser.entity"; // Importe a entidade PermissionUser
-import { Permission } from "./Permission.entity"; // Importe a entidade Permission
-import { Squad } from "./Squad.entity"; // Importe a entidade Squad
+import { User } from "./User.entity"; 
+import { PermissionUser } from "./PermissionUser.entity"; 
+import { Permission } from "./Permission.entity"; 
+import { Squad } from "./Squad.entity"; 
 
 @Entity('user_created')
 export class UserCreation {
@@ -21,13 +21,13 @@ export class UserCreation {
     @ManyToOne(() => User, user => user.createdUsers) 
     creator: User | null;
 
-    @ManyToOne(() => PermissionUser, permissionUser => permissionUser.permissionUser_id, { nullable: true }) // Permitir null
+    @ManyToOne(() => PermissionUser, permissionUser => permissionUser.permissionUser_id, { nullable: true }) 
     permissionUser: PermissionUser | null; 
 
-    @ManyToOne(() => Permission, permission => permission.permission_id, { nullable: true }) // Permitir null
+    @ManyToOne(() => Permission, permission => permission.permission_id, { nullable: true })
     permission: Permission | null; 
 
-    @ManyToOne(() => Squad, squad => squad.squad_id, { nullable: true }) // Permitir null
+    @ManyToOne(() => Squad, squad => squad.squad_id, { nullable: true }) 
     @JoinColumn({ name: 'squad_id' })
     squad: Squad | null;
 

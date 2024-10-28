@@ -103,7 +103,6 @@ export class UserService{
             throw new Error('User not found');
         }
     
-        // Atualize apenas os campos que foram fornecidos
         updateUser.name = name ?? updateUser.name;
         updateUser.email = email ?? updateUser.email;
     

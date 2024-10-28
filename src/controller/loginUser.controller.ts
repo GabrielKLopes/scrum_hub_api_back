@@ -9,7 +9,6 @@ export class LoginUserController {
         const token = await authorization.authorizationUser(email, password);
         res.status(200).json({ token });
       } catch (error: any) {
-        console.log(error)
         res.status(401).json({ message: error.message || "Authentication failed" });
       }
     }

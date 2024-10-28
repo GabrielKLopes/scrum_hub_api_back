@@ -16,7 +16,9 @@ routes.use("/session", loginRoutes)
 
 // User Creation
 routes.post("/session/user/create", authorization, UserCreationController.createUser); 
-routes.get('/session/user/create', UserCreationController.getUsersCreatedBy);
+routes.get('/session/user/create', authorization, UserCreationController.getAllUsers);
+routes.delete("/session/user/create/:user_id", authorization, UserCreationController.deleteUser); 
+routes.get("/session/user/create/:user_id", authorization, UserCreationController.getUserById);
 
 //User
 routes.post("/session/user/register", UserController.createUser);
