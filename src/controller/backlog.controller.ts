@@ -84,7 +84,6 @@ export class BacklogController{
 
             const backlog = await backlogService.updateBacklog(backlog_id, name);
             res.status(201).json(backlog);
-            console.log(backlog)
        }catch(error){
         
             res.status(500).json("Interal Server Error");

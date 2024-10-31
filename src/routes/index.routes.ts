@@ -19,6 +19,7 @@ routes.post("/session/user/create", authorization, UserCreationController.create
 routes.get('/session/user/create', authorization, UserCreationController.getAllUsers);
 routes.delete("/session/user/create/:user_id", authorization, UserCreationController.deleteUser); 
 routes.get("/session/user/create/:user_id", authorization, UserCreationController.getUserById);
+routes.put("/session/user/create/:user_id", authorization, UserCreationController.updateUser); 
 
 //User
 routes.post("/session/user/register", UserController.createUser);

@@ -26,7 +26,6 @@ export class ProjectService{
             createdBy,
             squad
         })
-        console.log(project);
         return this.projectRepository.save(project);
     }
 

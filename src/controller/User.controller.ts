@@ -82,7 +82,6 @@ export class UserController {
             res.status(200).json(updatedUser);
 
         }catch(error){
-            console.log(error);
             res.status(500).json('Internal server error');
         }
     }

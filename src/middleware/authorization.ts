@@ -58,10 +58,8 @@ export async function authorization(req: CustomRequest, res: Response, next: Nex
      
         
         req.user_id = user.user_id; 
-        console.log("User ID do middleware:", req.user_id); 
         next();
     } catch (error) {
-        console.log(error);
         return res.status(401).send({ message: "Acess denied" });
     }
 }

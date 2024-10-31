@@ -16,7 +16,6 @@ export class BacklogService{
             name,
             create_by,
         })
-        console.log(backlog);
         return this.backlogRepository.save(backlog);
     }
 

@@ -90,7 +90,6 @@ export class SquadController{
             const squad = await squadService.updateSquad(squad_id, name);
             res.status(200).json(squad);
         }catch(error){
-            console.log(error)
             res.status(500).json({message: 'Internal server error'});
         }
     }
