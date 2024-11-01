@@ -1,14 +1,11 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/User.service";
 
-
-
-
 export class UserController {
     static async createUser(req: Request, res: Response): Promise<void> {
         try {
             const userService = new UserService();
-            const { name, password, email, permission_id, permissionUser_id, squad_id, title_id } = req.body;
+            const { name, password, email, permission_id, permissionUser_id, squad_id,  } = req.body;
     
             if (!name || !password || !email) {
                 res.status(400).json({ message: "Missing required fields" });
@@ -19,7 +16,6 @@ export class UserController {
                 name,
                 email,
                 password,
-                title_id,
                 permissionUser_id,
                 permission_id,
                 squad_id
@@ -76,7 +72,7 @@ export class UserController {
                 return
             }
             
-            const updatedUser = await userService.updatedUser(user_id, name, email, password, title_id, permission_id, permissionUser_id, squad_id );
+            const updatedUser = await userService.updatedUser(user_id, name, email, password,  permission_id, permissionUser_id, squad_id );
 
            
             res.status(200).json(updatedUser);

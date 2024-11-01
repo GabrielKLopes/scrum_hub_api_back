@@ -2,79 +2,104 @@ import { AppDataSource } from "../data-source";
 import { Squad } from "../entities/Squad.entity";
 import { User } from "../entities/User.entity";
 
+export class SquadService {
+  private userRepository = AppDataSource.getRepository(User);
+  private squadRepository = AppDataSource.getRepository(Squad);
 
-export class SquadService{
-    private userRepository = AppDataSource.getRepository(User);
-    private squadRepository  = AppDataSource.getRepository(Squad);
+  async createSquad(name: string, user_id: number): Promise<Squad> {
+    try {
+      const createdBy = await this.userRepository.findOne({
+        where: { user_id },
+        relations: ["permissionUser"],
+        select: ["user_id", "name"],
+      });
 
-    async createSquad(name: string, user_id: number): Promise<Squad>{
-        try{
-            const createdBy = await this.userRepository.findOne({where:{user_id}, relations:['permissionUser'], select:['user_id', 'name']});
+      if (!createdBy) {
+        throw new Error("User not found");
+      }
+      const squad = this.squadRepository.create({
+        name,
+        createdBy,
+      });
+      const savedSquad = await this.squadRepository.save(squad);
 
-            if(!createdBy){
-                throw new Error('User not found');
-            }
-            const squad = this.squadRepository.create({
-                name,
-                createdBy
-            })
-            const savedSquad = await this.squadRepository.save(squad);
+      return savedSquad;
+    } catch (error) {
+      throw new Error("Internal server error");
+    }
+  }
 
-            return savedSquad;
+  async getAllSquads(): Promise<Squad[]> {
+    try {
+      const squads = await this.squadRepository.find({
+        relations: ['users'], 
+      });
+      return squads;
+    } catch (error) {
+      console.error("Erro ao buscar squads: ", error);
+      throw new Error("Erro ao buscar squads");
+    }
+  }
+  
 
-        }catch(error){
-            throw new Error('Internal server error');
-        }
+  async getSquadById(squad_id: number): Promise<Squad | undefined> {
+    try {
+      const squad = await this.squadRepository.findOne({ where: { squad_id } });
+      if (!squad) {
+        throw new Error("Squad not found");
+      }
+      return squad;
+    } catch (error) {
+      throw new Error("Internal Server Error");
+    }
+  }
+  async updateSquad(squad_id: number, name: string): Promise<Squad> {
+    const squadRepository = AppDataSource.getRepository(Squad);
+    const updateSquad = await this.squadRepository.findOne({
+      where: { squad_id },
+    });
+
+    if (!updateSquad) {
+      throw new Error("Squad not found");
+    }
+    const existingSquad = await squadRepository.findOne({ where: { name } });
+    if (existingSquad) {
+      throw new Error("Squad name already exist");
     }
 
-    async getAllSquad(): Promise<Squad[]>{
-    const squad = await this.squadRepository.find();
-
-    return squad;
+    if (name == undefined || name == "") {
+      throw new Error("Squad null or undefined");
+    } else if (name !== undefined && name !== "") {
+      updateSquad.name = name;
     }
 
-    async getSquadById(squad_id: number): Promise<Squad | undefined>{
-       try{
-        const squad = await this.squadRepository.findOne({where: {squad_id}});
-        if(!squad){
-            throw new Error('Squad not found');
-        }
-        return squad;
+    await squadRepository.save(updateSquad);
+    return updateSquad;
+  }
 
-       }catch(error){
-            throw new Error('Internal Server Error');
-       }
+  async deleteSquad(squad_id: number): Promise<void> {
+    const squadId = await this.squadRepository.findOne({ where: { squad_id } });
+
+    if (!squadId) {
+      throw new Error("Squad not found");
     }
-    async updateSquad(squad_id: number, name: string): Promise<Squad>{
-        const squadRepository = AppDataSource.getRepository(Squad);
-        const updateSquad = await this.squadRepository.findOne({where:{squad_id}});
+    await this.squadRepository.delete(squad_id);
+  }
 
-        if(!updateSquad){
-            throw new Error('Squad not found');
-        }
-        const existingSquad = await squadRepository.findOne({where: {name}});
-        if(existingSquad){
-            throw new Error('Squad name already exist');
-        }
+  async getMembersBySquadId(squad_id: number): Promise<User[]> {
+    try {
+      const squad = await this.squadRepository.findOne({
+        where: { squad_id },
+        relations: ["user"],
+      });
 
-        if(name == undefined || name == ""){
-            throw new Error("Squad null or undefined")
-        }else if(name !== undefined && name !== ""){
-            updateSquad.name = name;
-        }
+      if (!squad) {
+        throw new Error("Squad not found");
+      }
 
-        await squadRepository.save(updateSquad);
-        return updateSquad;
-       
+      return squad.users;
+    } catch (error) {
+      throw new Error("Internal Server Error");
     }
-
-    async deleteSquad(squad_id: number): Promise<void>{
-        const squadId = await this.squadRepository.findOne({where: {squad_id}});
-
-        if(!squadId){
-            throw new Error('Squad not found');
-        }
-        await this.squadRepository.delete(squad_id);
-    }
-
+  }
 }

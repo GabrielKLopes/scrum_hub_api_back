@@ -35,6 +35,7 @@ routes.get("/session/squad", authorization, SquadController.getAllSquad);
 routes.get("/session/squad/:squad_id", authorization, SquadController.getSquadById); 
 routes.put("/session/squad/:squad_id", authorization, SquadController.updateSquad);
 routes.delete("/session/squad/:squad_id", authorization, SquadController.deleteSquad);
+routes.get('/session/:squad_id/members', authorization, SquadController.getMembersBySquad);
 
 //Project
 routes.post("/session/project/createProject", authorization, ProjectController.createProject);

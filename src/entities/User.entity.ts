@@ -69,8 +69,6 @@ export class User{
     @OneToMany(() => UserCreation, userCreation => userCreation.creator)
     createdUsers: UserCreation[];
 
-  
- 
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

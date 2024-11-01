@@ -31,7 +31,6 @@ export class ProjectService{
 
     async getAllProject():Promise<Project[]>{
         const project = await this.projectRepository.find({relations: ['createdBy', 'squad']});
-
         return project;
     }
 
