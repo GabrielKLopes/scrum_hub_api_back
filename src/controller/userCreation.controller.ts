@@ -74,7 +74,6 @@ export class UserCreationController {
         }
     }
 
-    // Controller com logs adicionais
     static async updateUser(req: Request, res: Response): Promise<void> {
         const userCreationService = new UserCreationService();
         try {

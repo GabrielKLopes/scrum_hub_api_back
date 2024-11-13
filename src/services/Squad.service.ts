@@ -44,7 +44,10 @@ export class SquadService {
 
   async getSquadById(squad_id: number): Promise<Squad | undefined> {
     try {
-      const squad = await this.squadRepository.findOne({ where: { squad_id } });
+      const squad = await this.squadRepository.findOne({
+        where: { squad_id },
+        relations: ['users', 'users.permission', "users.permissionUser"], 
+      });
       if (!squad) {
         throw new Error("Squad not found");
       }
@@ -53,6 +56,7 @@ export class SquadService {
       throw new Error("Internal Server Error");
     }
   }
+  
   async updateSquad(squad_id: number, name: string): Promise<Squad> {
     const squadRepository = AppDataSource.getRepository(Squad);
     const updateSquad = await this.squadRepository.findOne({

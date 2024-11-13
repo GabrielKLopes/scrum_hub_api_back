@@ -72,4 +72,11 @@ export class ProjectService{
         await this.projectRepository.delete(project_id);
     }
 
+    async getBySquadId(squad_id: number): Promise<Project[]> {
+        const projects = await this.projectRepository.find({
+            where: { squad: { squad_id } },
+            relations: ["createdBy", "squad"],
+        });
+        return projects;
+    }
 }

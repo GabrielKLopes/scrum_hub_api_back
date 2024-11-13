@@ -7,6 +7,7 @@ import { SquadController } from "../controller/Squad.controller";
 import { ProjectController } from "../controller/Project.controller";
 import { BacklogController } from "../controller/backlog.controller";
 import { UserCreationController } from "../controller/userCreation.controller";
+import { TaskController } from "../controller/Task.controller";
 
 export const routes = Router();
 
@@ -43,12 +44,23 @@ routes.get("/session/project", authorization, ProjectController.getAllProjet);
 routes.get("/session/project/:project_id", authorization, ProjectController.getProjectById);
 routes.put("/session/project/:project_id", authorization, ProjectController.updateProject);
 routes.delete("/session/project/:project_id", authorization, ProjectController.deleteProject);
+routes.get("/session/project/squad/:squad_id", authorization, ProjectController.getProjectsBySquadId);
 
 
 
 //BackLog
 routes.post("/session/backlog/createBacklog", authorization, BacklogController.createBacklog);
 routes.get("/session/backlog/:backlog_id", authorization, BacklogController.getBacklogById);
-routes.get("/session/backlog/", authorization, BacklogController.getAllBacklog);
-routes.delete("/session/backlog/:backlog_id", authorization, BacklogController.deleteBacklog);
+routes.get("/session/project/:project_id/backlogs", authorization, BacklogController.getAllBacklogsByProject);
 routes.put("/session/backlog/:backlog_id", authorization, BacklogController.updadeBacklog);
+routes.delete("/session/backlog/:backlog_id", authorization, BacklogController.deleteBacklog);
+
+
+// Task Routes
+routes.post("/session/project/:project_id/tasks", authorization, TaskController.createTask);
+routes.get("/session/project/:project_id/tasks", authorization, TaskController.getTasksByProject);
+routes.put("/session/tasks/:task_id", authorization, TaskController.updateTask);
+routes.delete("/session/tasks/:task_id", authorization, TaskController.deleteTask);
+routes.get("/session/tasks", authorization, TaskController.getAllTasks);
+routes.get("/session/tasks/:task_id", authorization, TaskController.getTaskById);
+routes.get("/session/backlog/:backlog_id/tasks", authorization, TaskController.getTaskByBacklog);

@@ -2,11 +2,10 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { Squad } from "./Squad.entity";
 import { Task } from "./Task.entity";
 import { User } from "./User.entity";
-
+import { BackLog } from "./Backlog.entity";
 
 @Entity('projects')
-
-export class Project{
+export class Project {
     @PrimaryGeneratedColumn()
     project_id: number;
 
@@ -17,15 +16,18 @@ export class Project{
     description: string;
 
     @ManyToOne(() => Squad, squad => squad.squad_id)
-    @JoinColumn({name: 'squad_id'})
-    squad: Squad
+    @JoinColumn({ name: 'squad_id' })
+    squad: Squad;
 
     @ManyToOne(() => User, user => user.projects)
-    @JoinColumn({ name: 'user_id' }) 
+    @JoinColumn({ name: 'user_id' })
     createdBy: User;
 
     @OneToMany(() => Task, task => task.project)
     task: Task[];
+
+    @OneToMany(() => BackLog, backlog => backlog.project)  
+    backlog: BackLog[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
@@ -33,4 +35,3 @@ export class Project{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updated_at: Date;
 }
-

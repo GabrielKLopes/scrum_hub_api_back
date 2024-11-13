@@ -64,7 +64,22 @@ export class ProjectController{
             res.status(500).json({message: 'Internal Server Error'});
         }
     }
+    static async getProjectsBySquadId(req: Request, res: Response): Promise<void> {
+        try {
+            const projectService = new ProjectService();
+            const squad_id = parseInt(req.params.squad_id, 10);
 
+            if (isNaN(squad_id)) {
+                res.status(400).json({ message: "ID da squad inválido" });
+                return;
+            }
+
+            const projects = await projectService.getBySquadId(squad_id);
+            res.status(200).json({ projects });
+        } catch (error) {
+            res.status(500).json({ message: "Erro ao buscar projetos da squad" });
+        }
+    }
     static async updateProject(req: Request, res: Response): Promise<void>{
       try{
         const projectService = new ProjectService(); 

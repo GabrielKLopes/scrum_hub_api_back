@@ -61,26 +61,31 @@ export class UserController {
         }
     }
 
-    static async updatedUser(req: Request, res: Response):Promise<void>{
-        try{
+    static async updatedUser(req: Request, res: Response): Promise<void> {
+        try {
             const userService = new UserService();
             const user_id = parseInt(req.params.user_id, 10);
-            const {name, email, password, title_id, permission_id, permissionUser_id, squad_id} = req.body;
-           
-            if(!user_id){
-                res.status(404).json({error: 'User not found'})
-                return
-            }
             
-            const updatedUser = await userService.updatedUser(user_id, name, email, password,  permission_id, permissionUser_id, squad_id );
-
-           
+            const { name, email, password, title_id, permission_id, permissionUser_id, squad } = req.body;
+            const squad_id = squad?.squad_id;
+    
+            if (!user_id) {
+                res.status(404).json({ error: 'User not found' });
+                return;
+            }
+    
+            const updatedUser = await userService.updatedUser(user_id, name, email, password, permission_id, permissionUser_id, squad_id);
+    
+            console.log("Usuário atualizado:", updatedUser);
             res.status(200).json(updatedUser);
-
-        }catch(error){
+    
+        } catch (error) {
+            console.error("Erro ao atualizar usuário:", error);
             res.status(500).json('Internal server error');
         }
     }
+    
+    
 
     static async deleteUser(req: Request, res: Response):Promise<void>{
         try{

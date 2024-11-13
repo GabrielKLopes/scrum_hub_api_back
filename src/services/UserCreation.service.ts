@@ -170,7 +170,7 @@ export class UserCreationService {
     async deleteUser(userId: number): Promise<void> {
         const userToDelete = await this.userCreatedRepository.findOne({
             where: { id: userId },
-            relations: ['creator'], // or any other relation needed to find the User entity
+            relations: ['creator'], 
         });
         
         if (!userToDelete) {

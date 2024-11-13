@@ -85,7 +85,7 @@ export class UserService {
     try {
       const users = await this.userRepository.findOne({
         where: { user_id },
-        relations: ["permission", "permissionUser"],
+        relations: ["permission", "permissionUser", "squad"],
       });
       if (!users) {
         throw new Error("User not found");
@@ -107,16 +107,16 @@ export class UserService {
   ): Promise<User> {
     const updateUser = await this.userRepository.findOne({
       where: { user_id },
-      relations: ["permission", "permissionUser"],
+      relations: ["permission", "permissionUser", "squad"],
     });
-
+  
     if (!updateUser) {
       throw new Error("User not found");
     }
-
+  
     updateUser.name = name ?? updateUser.name;
     updateUser.email = email ?? updateUser.email;
-
+  
     if (password) {
       const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
@@ -128,29 +128,47 @@ export class UserService {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateUser.password = hashedPassword;
     }
+  
+  
 
     if (permissionUser_id !== undefined) {
       const permissionUser = await this.permissionUserRepository.findOne({
         where: { permissionUser_id },
       });
       if (permissionUser) updateUser.permissionUser = permissionUser;
+      else updateUser.permissionUser = null;  
     }
-
+  
     if (permission_id !== undefined) {
       const permission = await this.permissionRepository.findOne({
         where: { permission_id },
       });
       if (permission) updateUser.permission = permission;
+      else updateUser.permission = null; 
     }
-
+  
     if (squad_id !== undefined) {
       const squad = await this.squadRepository.findOne({ where: { squad_id } });
-      if (squad) updateUser.squad = squad;
+      if (squad) {
+        updateUser.squad = squad;
+      } else {
+        updateUser.squad = null;
+      }
     }
+    console.log("Antes da atualização:", updateUser);
 
     await this.userRepository.save(updateUser);
-    return updateUser;
+    console.log("Depois da atualização:", updateUser);
+
+    const updatedUser = await this.userRepository.findOne({
+      where: { user_id },
+      relations: ["permission", "permissionUser", "squad"],
+    });
+  
+  
+    return updatedUser!;
   }
+  
 
   async deleteUser(user_id: number): Promise<void> {
     const userId = await this.userRepository.findOne({ where: { user_id } });

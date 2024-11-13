@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Default1730428563465 implements MigrationInterface {
-    name = 'Default1730428563465'
+export class Default1731471905601 implements MigrationInterface {
+    name = 'Default1731471905601'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "permissions" ("permission_id" SERIAL NOT NULL, "name" character varying NOT NULL, "type" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_1717db2235a5b169822e7f753b1" PRIMARY KEY ("permission_id"))`);
         await queryRunner.query(`CREATE TABLE "status" ("status_id" SERIAL NOT NULL, "name" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_c29343a0448c20d631bbca4a5ab" PRIMARY KEY ("status_id"))`);
-        await queryRunner.query(`CREATE TABLE "backlogs" ("backlog_id" SERIAL NOT NULL, "name" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "create_by" integer, CONSTRAINT "PK_27f0087b71cba2eebbe4e3a5a4f" PRIMARY KEY ("backlog_id"))`);
+        await queryRunner.query(`CREATE TABLE "backlogs" ("backlog_id" SERIAL NOT NULL, "name" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "create_by" integer, "project_id" integer, CONSTRAINT "PK_27f0087b71cba2eebbe4e3a5a4f" PRIMARY KEY ("backlog_id"))`);
         await queryRunner.query(`CREATE TABLE "sprints" ("sprint_id" SERIAL NOT NULL, "name" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "squad_id" integer, "create_by" integer, "backlog_id" integer, CONSTRAINT "PK_833055f6b5b4f922d828c336c44" PRIMARY KEY ("sprint_id"))`);
         await queryRunner.query(`CREATE TABLE "comments" ("comment_id" SERIAL NOT NULL, "description" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "create_by" integer, "task_id" integer, "subtask_id" integer, CONSTRAINT "PK_eb0d76f2ca45d66a7de04c7c72b" PRIMARY KEY ("comment_id"))`);
         await queryRunner.query(`CREATE TABLE "subtask" ("subtask_id" SERIAL NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "create_by" integer, "responsible_by" integer, "task_id" integer, "status_id" integer, "priority_id" integer, "squad_id" integer, "sprint_id" integer, CONSTRAINT "PK_6b365ef2aa04153d463dd777496" PRIMARY KEY ("subtask_id"))`);
@@ -18,6 +18,7 @@ export class Default1730428563465 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "users" ("user_id" SERIAL NOT NULL, "name" character varying NOT NULL, "email" character varying NOT NULL, "password" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "permissionUser_id" integer, "permission_id" integer, "squad_id" integer, CONSTRAINT "PK_96aac72f1574b88752e9fb00089" PRIMARY KEY ("user_id"))`);
         await queryRunner.query(`CREATE TABLE "user_created" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "email" character varying NOT NULL, "password" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "creatorUserId" integer, "permissionUserPermissionUserId" integer, "permissionPermissionId" integer, "squad_id" integer, CONSTRAINT "PK_2658d4029dc1bf7529ebb04c047" PRIMARY KEY ("id"))`);
         await queryRunner.query(`ALTER TABLE "backlogs" ADD CONSTRAINT "FK_e81683a46cfefa0ec0349a3d005" FOREIGN KEY ("create_by") REFERENCES "users"("user_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "backlogs" ADD CONSTRAINT "FK_324cade551ae41cc67ad0f2b450" FOREIGN KEY ("project_id") REFERENCES "projects"("project_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "sprints" ADD CONSTRAINT "FK_f4cbfaed27a5a2a3d9cc73288b7" FOREIGN KEY ("squad_id") REFERENCES "squads"("squad_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "sprints" ADD CONSTRAINT "FK_b9b6ca7c07b960c489994bbabb8" FOREIGN KEY ("create_by") REFERENCES "users"("user_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "sprints" ADD CONSTRAINT "FK_57369062099f33058758c15a4e9" FOREIGN KEY ("backlog_id") REFERENCES "backlogs"("backlog_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -49,6 +50,7 @@ export class Default1730428563465 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "user_created" ADD CONSTRAINT "FK_c7fc68b1746b5951e0743a905de" FOREIGN KEY ("permissionUserPermissionUserId") REFERENCES "permissionusers"("permissionUser_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "user_created" ADD CONSTRAINT "FK_7bc703d886de524fb8ea8da9362" FOREIGN KEY ("permissionPermissionId") REFERENCES "permissions"("permission_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "user_created" ADD CONSTRAINT "FK_f7560130e6147aad846d60718af" FOREIGN KEY ("squad_id") REFERENCES "squads"("squad_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+   
         await queryRunner.query(`INSERT INTO permissionusers (name, createValue, deleteValue, updateValue) 
             VALUES ('product owner', true, true, true), 
             ('scrum master', true, true, true),
@@ -59,7 +61,6 @@ export class Default1730428563465 implements MigrationInterface {
             `INSERT INTO permissions (name, type) VALUES ('administrador', true), ('colaborador', false)`
         );
     }
-
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "user_created" DROP CONSTRAINT "FK_f7560130e6147aad846d60718af"`);
@@ -93,6 +94,7 @@ export class Default1730428563465 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "sprints" DROP CONSTRAINT "FK_57369062099f33058758c15a4e9"`);
         await queryRunner.query(`ALTER TABLE "sprints" DROP CONSTRAINT "FK_b9b6ca7c07b960c489994bbabb8"`);
         await queryRunner.query(`ALTER TABLE "sprints" DROP CONSTRAINT "FK_f4cbfaed27a5a2a3d9cc73288b7"`);
+        await queryRunner.query(`ALTER TABLE "backlogs" DROP CONSTRAINT "FK_324cade551ae41cc67ad0f2b450"`);
         await queryRunner.query(`ALTER TABLE "backlogs" DROP CONSTRAINT "FK_e81683a46cfefa0ec0349a3d005"`);
         await queryRunner.query(`DROP TABLE "user_created"`);
         await queryRunner.query(`DROP TABLE "users"`);
